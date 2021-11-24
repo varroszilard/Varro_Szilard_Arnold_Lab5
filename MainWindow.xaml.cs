@@ -76,6 +76,8 @@ namespace Varro_Szilard_Arnold_Lab5
         {
             Customer customer = null;
 
+            //SetValidationBinding();
+
             if(action == ActionState.New)
             {
                 try 
@@ -140,6 +142,8 @@ namespace Varro_Szilard_Arnold_Lab5
         private void btnEdit_Click(object sender, RoutedEventArgs e)
         {
             action = ActionState.Edit;
+
+            SetValidationBinding();
         }
 
         private void btnDelete_Click(object sender, RoutedEventArgs e)
@@ -345,6 +349,12 @@ namespace Varro_Szilard_Arnold_Lab5
             customerOrdersViewSource.View.MoveCurrentToPrevious();
         }
 
+        private void RemoveWhiteSpace_TextChanged(object sender, RoutedEventArgs e)
+        {
+            firstNameTextBox.Text = firstNameTextBox.Text.TrimEnd();
+            lastNameTextBox.Text = lastNameTextBox.Text.TrimEnd();
+        }
+
         private void BindDataGrid()
         {
             var queryOrder = from ord in ctx.Orders
@@ -362,6 +372,27 @@ namespace Varro_Szilard_Arnold_Lab5
                              };
 
             customerOrdersViewSource.Source = queryOrder.ToList();
+        }
+
+        private void SetValidationBinding()
+        {
+            Binding firstNameValidationBinding = new Binding();
+            firstNameValidationBinding.Source = customerViewSource;
+            firstNameValidationBinding.Path = new PropertyPath("FirstName");
+            firstNameValidationBinding.NotifyOnValidationError = true;
+            firstNameValidationBinding.Mode = BindingMode.TwoWay;
+            firstNameValidationBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            firstNameValidationBinding.ValidationRules.Add(new StringNotEmpty());
+            firstNameTextBox.SetBinding(TextBox.TextProperty, firstNameValidationBinding);
+
+            Binding lastNameValidationBinding = new Binding();
+            lastNameValidationBinding.Source = customerViewSource;
+            lastNameValidationBinding.Path = new PropertyPath("LastName");
+            lastNameValidationBinding.NotifyOnValidationError = true;
+            lastNameValidationBinding.Mode = BindingMode.TwoWay;
+            lastNameValidationBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            lastNameValidationBinding.ValidationRules.Add(new StringMinLengthValidator());
+            lastNameTextBox.SetBinding(TextBox.TextProperty, lastNameValidationBinding);
         }
     }
 }
